@@ -8,7 +8,7 @@
 
 ## Git initialize
 
-- Clone repository from Link
+- Clone repository from [Link](https://github.com/Oct19/ML2021_GroupProject)
 
 If .gitignore is not working:
 

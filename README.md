@@ -12,3 +12,11 @@
 - PyTorch Vision version: 0.11.1
 - Compute Platform: CUDA 11.3 / CPU
 - IDE: VS Code(recommended)
+
+## Link
+
+Code: [GitHub](https://github.com/Oct19/ML2021_GroupProject)
+
+文件: [坚果云](https://www.jianguoyun.com/p/DRMxBDAQ6Ln_CRjL1p4E)
+
+<h1 align="center"><img src="https://placekitten.com/800/250"/></h1>
