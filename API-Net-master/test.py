@@ -9,7 +9,7 @@ import torch.utils.data
 import torchvision.transforms as transforms
 import numpy as np
 from models import API_Net
-from datasets import TestDataset, RandomDataset
+from datasets import TestDataset, RandomDataset, default_loader
 from utils import accuracy, AverageMeter, save_checkpoint
 from tqdm import tqdm
 
@@ -19,6 +19,13 @@ parser.add_argument('-j', '--workers', default=8, type=int, metavar='N',
 parser.add_argument('-b', '--batch-size', default=1, type=int, metavar='N', help='mini-batch size (default: 10)')
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
+transforms1 = transforms.Compose([transforms.Resize([512, 512]),
+                                 transforms.CenterCrop([448, 448]),
+                                 transforms.ToTensor(),
+                                 transforms.Normalize(
+                                 mean=(0.485, 0.456, 0.406),
+                                 std=(0.229, 0.224, 0.225)
+                                 )])
 
 def main():
     global args
@@ -31,30 +38,28 @@ def main():
 
     cudnn.benchmark = True
     # Data loading code
-    test_dataset = TestDataset(transform=transforms.Compose([
-                                            transforms.Resize([512, 512]), transforms.CenterCrop([448, 448]),
-                                            transforms.ToTensor(),
-                                            transforms.Normalize(
-                                                mean=(0.485, 0.456, 0.406),
-                                                std=(0.229, 0.224, 0.225)
-                                            )]))
-    test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=args.batch_size, shuffle=False, num_workers=args.workers, pin_memory=True)
     print('START TIME:', time.asctime(time.localtime(time.time())))
-    test(test_loader, model)
+    test(model)
     #test(val_loader, model)
 
-
-def test(test_loader, model):
+def test(model):
     f = open('test_result2.txt','w')
     predict_list = []
     model.eval()
-    tqdm_gen = tqdm(test_loader)
+    dataroot = 'datasets/stanford_cars/cars_test/'
+    datalist = open('datasets/stanford_cars/test_list.txt', 'r').readlines()
     with torch.no_grad():
-        for i, (img,label) in enumerate(tqdm_gen):
+        for ss in datalist:
+            imgname = ss.split(' ')[0]
+            imgpath = dataroot + imgname
+            img = default_loader(imgpath)
+            img = transforms1(img)
+            img = img.unsqueeze(0)
             img = img.to(device)
             logits = model(img, targets = None, flag = 'val')
             _, predict = logits.topk(1, 0, True, True)
             predict = int(predict.squeeze())
+            print(f'{imgname} : {predict}')
             predict_list.append(str(predict)+'\n')
 
     f.writelines(predict_list)
